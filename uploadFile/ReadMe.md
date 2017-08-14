@@ -193,3 +193,8 @@ $('#file').uploadFile({  // '#file' 是 <input type="file" /> 元素       
     });
 
 ```
+
+### DEMO
+
+下载上面的Demo文件，进行本地服务器上测试
+
