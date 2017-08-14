@@ -15,6 +15,7 @@
 	<thead>
 		<tr>
 			<td>参数</td>
+			<td>类型</td>
 			<td>注释</td>
 			<td>必须参数</td>
 		</tr>
@@ -22,8 +23,99 @@
     <tbody>
     	<tr>
     		<td>url</td>
+    		<td>String</td>
 			<td>上传文件的url地址</td>
 			<td>是</td>
+    	</tr>
+    	<tr>
+    		<td>btn</td>
+    		<td>String</td>
+			<td>选择器 上传按钮</td>
+			<td>是</td>
+    	</tr>
+    	<tr>
+    		<td>accept</td>
+    		<td>Array</td>
+			<td>上传文件的格式类型（写文件名后缀）</td>
+			<td>否</td>
+    	</tr>
+    	<tr>
+    		<td>maxSize</td>
+    		<td>String</td>
+			<td>上传文件的最大值</td>
+			<td>否</td>
+    	</tr>
+    	<tr>
+    		<td>scale</td>
+    		<td>Array</td>
+			<td>图片大小的最小范围（用于后台裁剪图片时）</td>
+			<td>否</td>
+    	</tr>
+    	<tr>
+    		<td>data</td>
+    		<td>Object</td>
+			<td>除文件以外的其他所需数据</td>
+			<td>否</td>
+    	</tr>
+    	<tr>
+    		<td>previewBox</td>
+    		<td>String</td>
+			<td>选择器 图片预览框</td>
+			<td>否</td>
+    	</tr>
+    	<tr>
+    		<td>previewCallBack</td>
+    		<td>Function</td>
+			<td>图片预览回调函数 （例如，进行图片裁剪）</td>
+			<td>否</td>
+    	</tr>
+    	<tr>
+    		<td>onBeforeChange</td>
+    		<td>Function</td>
+			<td>选择图片的change事件</td>
+			<td>否</td>
+    	</tr>
+    	<tr>
+    		<td>onBeforeSend</td>
+    		<td>Function</td>
+			<td>上传图片的发送事件</td>
+			<td>否</td>
+    	</tr>
+    	<tr>
+    		<td>acceptError</td>
+    		<td>Function</td>
+			<td>文件类型错误的回调函数</td>
+			<td>否</td>
+    	</tr>
+    	<tr>
+    		<td>sizeError</td>
+    		<td>Function</td>
+			<td>文件大小不符的回调函数</td>
+			<td>否</td>
+    	</tr>
+    	<tr>
+    		<td>scaleError</td>
+    		<td>Function</td>
+			<td>图片比例不符的回调函数</td>
+			<td>否</td>
+    	</tr>
+    	<tr>
+    		<td>sendNull</td>
+    		<td>Function</td>
+			<td>未选择文件的回调函数</td>
+			<td>否</td>
+    	</tr>
+    	<tr>
+    		<td>ajaxSuccess</td>
+    		<td>Function</td>
+			<td>文件上传成功的回调函数</td>
+			<td>否</td>
+    	</tr>
+    	<tr>
+    		<td>ajaxError</td>
+    		<td>Function</td>
+			<td>文件上传失败的回调函数</td>
+			<td>否</td>
     	</tr>
     </tbody>
 </table>
@@ -53,7 +145,7 @@
       sendNull:function (message) { // 未选择文件
         alert('未选择文件！');
       },
-      onFileChange:function () { // file change事件
+      onBeforeChange:function () { // file change事件
         console.log('选择图片中。。。');
       },
       onBeforeSend:function (data) { // 中断上传   true:'可以上传'  false:'禁止上传' 
