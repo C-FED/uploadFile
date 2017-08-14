@@ -132,19 +132,19 @@
 
 ```
 
-1. 初始化
+2. 初始化
 
 ```
 
-$('#file').uploadFile({
-     url:'./php/getFile.php', // 必须参数
+$('#file').uploadFile({  // '#file' 是 <input type="file" /> 元素                                                                   
+     url:'./php/getFile.php', // 必须参数
      btn:'#send', // selector 必须参数
 });
 
 ```
 
 
-### 完整使用示例
+3. 完整使用示例
 
 ```
 
