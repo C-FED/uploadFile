@@ -10,6 +10,25 @@
 
 ### 配置
 
+<table>
+	<thead>
+		<tr>
+			<td>参数</td>
+			<td>注释</td>
+			<td>必须参数</td>
+		</tr>
+	</thead>
+    <tbody>
+    	<tr>
+    		<td>url</td>
+			<td>上传文件的url地址</td>
+			<td>是</td>
+    	</tr>
+    </tbody>
+</table>
+
+### 示例
+
 ```
 
     // 上传插件
@@ -41,7 +60,6 @@
       },
       ajaxSuccess:function (data) { // 上传成功
         console.log(data);
-        $('#picBox').html('');
       },
       ajaxError:function (error) { // 上传失败
         console.log(error);
