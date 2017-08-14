@@ -120,7 +120,31 @@
     </tbody>
 </table>
 
-### 示例
+
+### 使用
+
+1. 引入相关js文件
+
+```
+
+<script type="text/javascript" src="path/jquery.min.js"></script>
+<script type="text/javascript" src="path/jquery.uploadFile.js"></script>
+
+```
+
+1. 初始化
+
+```
+
+$('#file').uploadFile({
+     url:'./php/getFile.php', // 必须参数
+     btn:'#send', // selector 必须参数
+});
+
+```
+
+
+### 完整使用示例
 
 ```
 
