@@ -125,7 +125,7 @@
 
 1. 引入相关js文件
 
-```
+```js
 
 <script type="text/javascript" src="path/jquery.min.js"></script>
 <script type="text/javascript" src="path/jquery.uploadFile.js"></script>
@@ -134,7 +134,7 @@
 
 2. 初始化
 
-```
+```js
 
 $('#file').uploadFile({  // '#file' 是 <input type="file" /> 元素                                                                   
      url:'./php/getFile.php', // 必须参数
@@ -146,7 +146,7 @@ $('#file').uploadFile({  // '#file' 是 <input type="file" /> 元素       
 
 3. 完整使用示例
 
-```
+```js
 
     // 上传插件
     $('#file').uploadFile({
