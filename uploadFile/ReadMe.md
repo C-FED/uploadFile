@@ -125,7 +125,7 @@
 
 1. 引入相关js文件
 
-```js
+```html
 
 <script type="text/javascript" src="path/jquery.min.js"></script>
 <script type="text/javascript" src="path/jquery.uploadFile.js"></script>
