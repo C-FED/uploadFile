@@ -2,8 +2,8 @@
 * @ignore  =====================================================================================
 * @overview 该文档主要完成主要任务是 文件上传
 * @author  Yangfan
-* @version 0.0.5
-* @ctime  created in 2017-08-07
+* @version 0.0.3
+* @ctime  created in 2017-09-07
 * @depend  Library jQuery
 * @compatibility  IE10+
 * @ignore  =====================================================================================
@@ -23,8 +23,8 @@
             img.onload = function () {
                 callback && callback(img); // 图片加载完成，回调
             };
-            picBox.innerHTML = '';
-            picBox.appendChild(img);
+            //picBox.innerHTML = '';
+            //picBox.appendChild(img);
         };
 
         if (typeof FileReader !== 'undefined') { //  FileReader    IE10+
@@ -37,18 +37,18 @@
                 createImg(path);
             };
             reader.readAsDataURL(input_file); // 该方法会读取指定的 Blob 或 File 对象。读取操作完成的时候，readyState 会变成已完成（DONE），并触发 loadend 事件，同时 result 属性将包含一个data:URL格式的字符串（base64编码）以表示所读取文件的内容
-            console.info('预览方式 FileReader');
+
         } else if (typeof URL !== 'undefined') { //  createObjectURL   IE10+
             path = window.URL.createObjectURL(input_file.files[0]);
             createImg(path);
-            console.info('预览方式 createObjectURL');
+
         } else {  //  IE  滤镜
             imgFile.select();
             path = document.selection.createRange().text;
             picBox.innerHTML = "";
             picBox.style.filter = "progid:DXImageTransform.Microsoft.AlphaImageLoader(enabled='true',sizingMethod='scale',src=\"" + path + "\")"; // 使用滤镜效果
             callback && callback(picBox);
-            console.info('预览方式 IE 滤镜');
+
         }
     }
     // 2K -> 2048
@@ -94,7 +94,7 @@
                     config.onBeforeChange(file);
                 }
                 if (file) {
-                    console.info('您已选择图片');
+
                     // 判断文件类型
                     if (!!config.accept) {
                         var reg = new RegExp('\\.(' + config.accept.join('|') + ')$', 'g'); // Reg /\.(jpg|gif|png)$/g
@@ -121,8 +121,12 @@
                         previewImage(file, $(config.previewBox).get(0), function (img) {
                             // 判断图片比例
                             if (config.scale && config.scale.length == 2) {
-                                if (img.width >= config.scale[0] && img.height >= config.scale[1]) {
+                                if (img.width >= config.scale[0] && img.height >= config.scale[1] && img.height<=$(window).height()) {
                                     isCanSend = true;
+                                    // 加载图片，进行预览
+                                    $(config.previewBox).html('');
+                                    $(config.previewBox).append(img);
+                                    // 执行预览图片后的回调
                                     config.previewCallBack && config.previewCallBack(img, data);
                                 } else {
                                     config.scaleError && config.scaleError();
@@ -130,16 +134,17 @@
                                     return false;
                                 }
                             } else {
+                                // 加载图片，进行预览
+                                $(config.previewBox).html('');
+                                $(config.previewBox).append(img);
                                 config.previewCallBack && config.previewCallBack(img, data);
                             }
                         });
                     }
                 } else {
-                    console.info('您取消了选择');
                     file = null;
                     isCanSend = false;
                 }
-
             });
             // 提交
             $(config.btn).on('click', function () {
@@ -153,13 +158,13 @@
                 if (isCanDoAjax) {
                     // 发送普通数据
                     // 额外发送的数据 例如 appid
-                    if (Object.keys(config.data).length > 0) {
+                    if (config.data && Object.keys(config.data).length > 0) {
                         for (key in config.data) {
                             formData.append(key, config.data[key]);
                         }
                     }
                     // 额外发送的数据 例如裁剪
-                    if (Object.keys(data).length > 0) {
+                    if (data && Object.keys(data).length > 0) {
                         for (key in data) {
                             formData.append(key, data[key]);
                         }
@@ -178,7 +183,7 @@
                         method: 'POST',
                         data: formData, // 表单数据
                         processData: false, // 不要对data参数进行序列化处理，默认为true
-                        contentType: false, // 不要设置Content-Type请求头，因为文件数据是以 multipart/form-data 来编
+                        contentType: false, // 不要设置Content-Type请求头，因文件数据是以 multipart/form-data 来编
                         success: function (res, status, xhr) {
                             isCanSend = false; // 禁止重复上传
                             config.ajaxSuccess && config.ajaxSuccess(res);
