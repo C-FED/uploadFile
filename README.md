@@ -5,4 +5,4 @@ The plugin of the jQuery
 1. Depend: jQuery
 
 
-LICENSE: MIT
+LICENSE: [MIT](https://choosealicense.com/licenses/mit)
