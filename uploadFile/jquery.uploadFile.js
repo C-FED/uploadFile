@@ -1,15 +1,39 @@
 /**
 * @ignore  =====================================================================================
 * @overview 该文档主要完成主要任务是 文件上传
-* @author  Yangfan
-* @version 0.0.3
-* @ctime  created in 2017-09-07
+* @author  Yangfan2016
+* @version 1.0.0
+* @ctime  created in 2017-09-11
 * @depend  Library jQuery
 * @compatibility  IE10+
 * @ignore  =====================================================================================
 */
 
 ; (function ($, win) {
+	var MIMETYPE={
+        'doc':'application/msword',
+        'docx':'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'ppt':'application/vnd.ms-powerpoint',
+        'pptx':'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+        'xls':'application/vnd.ms-excel',
+        'xlsx':'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        'pdf':'application/pdf',
+        'zip':'application/zip',
+        'xml':'application/xml',
+        'js':'application/javascript',
+        'json':'application/json',
+        'txt':'text/plain',
+        'html':'text/html',
+        'css':'text/css',
+        'jpg':'image/jpeg',
+        'jpeg':'image/jpeg',
+        'png':'image/png',
+        'gif':'image/gif',
+        'bmp':'image/bmp',
+        'webp':'image/webp',
+        'ico':'image/x-icon',
+        'img*':'image/*'
+    };
     // =======================图片预览  IE10+ ==================================
     function previewImage(input_file, picBox, callback) {
         var path,
@@ -81,22 +105,28 @@
             // 初始化 accept='image/jpg,image/gif'
             if (config.accept && config.accept.length > 0) {
                 ele.accept = (config.accept).map(function (item, index) {
-                    return item = 'image/' + item;
-                }).join(',').replace('jpg', 'jpeg');
+                    return MIMETYPE[item] || '';
+                }).join(',');
             }
             // 上传
             $ele.on('change', function (e) {
                 var ev = e || window.event,
                     target = ev.target || ev.srcElement;
                 file = target.files[0];
+
+                console.log(file);
                 // 暴露出回调
                 if (typeof (config.onBeforeChange) === 'function') {
                     config.onBeforeChange(file);
-                }
+                } 
                 if (file) {
-
-                    // 判断文件类型
+                    isCanSend=true;
+                    // 判断文件类型 后缀
                     if (!!config.accept) {
+                        // jpg,jpeg=>jpg
+                        config.accept=config.accept.map(function (item,index,array) {
+                            return item=="jpeg"?"jpg":item;
+                        });
                         var reg = new RegExp('\\.(' + config.accept.join('|') + ')$', 'g'); // Reg /\.(jpg|gif|png)$/g
                         if (!reg.test(file.name)) {
                             isCanSend = false;
