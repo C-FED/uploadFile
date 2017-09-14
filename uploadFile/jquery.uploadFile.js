@@ -47,8 +47,6 @@
             img.onload = function () {
                 callback && callback(img); // 图片加载完成，回调
             };
-            //picBox.innerHTML = '';
-            //picBox.appendChild(img);
         };
 
         if (typeof FileReader !== 'undefined') { //  FileReader    IE10+
@@ -67,12 +65,11 @@
             createImg(path);
 
         } else {  //  IE  滤镜
-            imgFile.select();
+            input_file.select();
             path = document.selection.createRange().text;
             picBox.innerHTML = "";
             picBox.style.filter = "progid:DXImageTransform.Microsoft.AlphaImageLoader(enabled='true',sizingMethod='scale',src=\"" + path + "\")"; // 使用滤镜效果
             callback && callback(picBox);
-
         }
     }
     // 2K -> 2048
@@ -114,7 +111,6 @@
                     target = ev.target || ev.srcElement;
                 file = target.files[0];
 
-                console.log(file);
                 // 暴露出回调
                 if (typeof (config.onBeforeChange) === 'function') {
                     config.onBeforeChange(file);
