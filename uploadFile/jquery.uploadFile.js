@@ -9,7 +9,7 @@
 * @ignore  =====================================================================================
 */
 
-; (function ($, win) {
+; (function ($, window) {
 	var MIMETYPE={
         'doc':'application/msword',
         'docx':'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
