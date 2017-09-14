@@ -2,14 +2,14 @@
 * @ignore  =====================================================================================
 * @overview 该文档主要完成主要任务是 文件上传
 * @author  Yangfan2016
-* @version 1.0.0
-* @ctime  created in 2017-09-11
+* @version 1.0.3
+* @ctime  created in 2017-09-14
 * @depend  Library jQuery
 * @compatibility  IE10+
 * @ignore  =====================================================================================
 */
 
-; (function ($, window) {
+;(function ($, window) {
 	var MIMETYPE={
         'doc':'application/msword',
         'docx':'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
@@ -32,7 +32,7 @@
         'bmp':'image/bmp',
         'webp':'image/webp',
         'ico':'image/x-icon',
-        'img*':'image/*'
+        'img*':'image/*' // bug
     };
     // =======================图片预览  IE10+ ==================================
     function previewImage(input_file, picBox, callback) {
@@ -70,6 +70,7 @@
             picBox.innerHTML = "";
             picBox.style.filter = "progid:DXImageTransform.Microsoft.AlphaImageLoader(enabled='true',sizingMethod='scale',src=\"" + path + "\")"; // 使用滤镜效果
             callback && callback(picBox);
+
         }
     }
     // 2K -> 2048
@@ -99,128 +100,161 @@
                 data = {}, // 额外数据
                 isCanSend = false; // 默认禁止上传
 
-            // 初始化 accept='image/jpg,image/gif'
-            if (config.accept && config.accept.length > 0) {
-                ele.accept = (config.accept).map(function (item, index) {
-                    return MIMETYPE[item] || '';
-                }).join(',');
-            }
-            // 上传
-            $ele.on('change', function (e) {
-                var ev = e || window.event,
-                    target = ev.target || ev.srcElement;
-                file = target.files[0];
-
-                // 暴露出回调
-                if (typeof (config.onBeforeChange) === 'function') {
-                    config.onBeforeChange(file);
-                } 
-                if (file) {
-                    isCanSend=true;
-                    // 判断文件类型 后缀
-                    if (!!config.accept) {
-                        // jpg,jpeg=>jpg
-                        config.accept=config.accept.map(function (item,index,array) {
-                            return item=="jpeg"?"jpg":item;
-                        });
-                        var reg = new RegExp('\\.(' + config.accept.join('|') + ')$', 'g'); // Reg /\.(jpg|gif|png)$/g
-                        if (!reg.test(file.name)) {
-                            isCanSend = false;
-                            config.acceptError && config.acceptError();
-                            return false;
-                        } else {
-                            isCanSend = true;
-                        }
-                    }
-                    // 判断文件大小
-                    if (!!config.maxSize) {
-                        if (file.size > formatByte(config.maxSize) || file.size == 0) {
-                            config.sizeError && config.sizeError();
-                            isCanSend = false;
-                            return false;
-                        } else {
-                            isCanSend = true;
-                        }
-                    }
-                    // 预览图片
-                    if (isCanSend && config.previewBox) {
-                        previewImage(file, $(config.previewBox).get(0), function (img) {
-                            // 判断图片比例
-                            if (config.scale && config.scale.length == 2) {
-                                if (img.width >= config.scale[0] && img.height >= config.scale[1] && img.height<=$(window).height()) {
-                                    isCanSend = true;
-                                    // 加载图片，进行预览
-                                    $(config.previewBox).html('');
-                                    $(config.previewBox).append(img);
-                                    // 执行预览图片后的回调
-                                    config.previewCallBack && config.previewCallBack(img, data);
-                                } else {
-                                    config.scaleError && config.scaleError();
-                                    isCanSend = false;
-                                    return false;
-                                }
-                            } else {
-                                // 加载图片，进行预览
-                                $(config.previewBox).html('');
-                                $(config.previewBox).append(img);
-                                config.previewCallBack && config.previewCallBack(img, data);
-                            }
-                        });
-                    }
+            // 验证必选参数
+            try {
+                if (typeof config.url!=="string" || typeof config.btn!=="string") {
+                    throw "url或btn参数错误";
                 } else {
-                    file = null;
-                    isCanSend = false;
-                }
-            });
-            // 提交
-            $(config.btn).on('click', function () {
-                var isCanDoAjax = true;
-                var formData = new FormData(); // 表单数据
-                // 额外的回调
-                if (typeof (config.onBeforeSend) === 'function') {
-                    isCanDoAjax = config.onBeforeSend(data);
-                }
-                // 是否中断发送
-                if (isCanDoAjax) {
-                    // 发送普通数据
-                    // 额外发送的数据 例如 appid
-                    if (config.data && Object.keys(config.data).length > 0) {
-                        for (key in config.data) {
-                            formData.append(key, config.data[key]);
-                        }
+                    // Init 初始化 accept='image/jpg,image/gif'
+                    if (config.accept && config.accept.length > 0) {
+                        ele.accept = (config.accept).map(function (item, index) {
+                            return MIMETYPE[item] || '';
+                        }).join(',');
                     }
-                    // 额外发送的数据 例如裁剪
-                    if (data && Object.keys(data).length > 0) {
-                        for (key in data) {
-                            formData.append(key, data[key]);
+
+                    // Event change 选择文件
+                    $ele.on('change', function (e) {
+                        var ev = e || window.event,
+                            target = ev.target || ev.srcElement;
+                        file = target.files[0];
+
+                        // onFileChange 暴露出文件信息
+                        if (typeof (config.onFileChange) === 'function') {
+                            config.onFileChange(file);
                         }
-                    }
-                    // 发送文件
-                    if (isCanSend) {
-                        formData.append('file', file);
-                    } else {
-                        if (typeof config.sendNull === 'function') {
-                            return config.sendNull(); // 是否中断ajax发送
+                        // 判断是否选择文件
+                        if (file) {
+                            isCanSend=true;
+                            // 1. 判断文件类型 后缀
+                            if (!!config.accept) {
+                                // jpg,jpeg=>jpg  img*=>image
+                                config.accept=config.accept.map(function (item,index,array) {
+                                    if (item==="img*") {
+                                        item="image";
+                                    }
+                                    return item=="jpeg"?"jpg":item;
+                                });
+
+                                var reg = new RegExp('\\.(' + config.accept.join('|') + ')$', 'g'); // Reg /\.(jpg|gif|png)$/g
+                                // 判断文件后缀
+                                if (!reg.test(file.name)) {
+                                    isCanSend = false;
+                                    // 判断是否是图片文件 image/*
+                                    if (file.type.indexOf("image")!==-1) {
+                                        if (config.accept.indexOf("image")!==-1) {
+                                            isCanSend=true;
+                                        }
+                                    }
+                                    if (!isCanSend) {
+                                        config.acceptError && config.acceptError();
+                                        return false;
+                                    }
+                                } else {
+                                    isCanSend = true;
+                                }
+                                    
+                            }
+                            // 2. 判断文件大小
+                            if (file.size==0) {
+                                config.sizeError && config.sizeError(0);
+                                isCanSend = false;
+                                return false;
+                            } else {
+                                if (!!config.maxSize) {
+                                    if (file.size > formatByte(config.maxSize)) {
+                                        config.sizeError && config.sizeError(1);
+                                        isCanSend = false;
+                                        return false;
+                                    } else {
+                                        isCanSend = true;
+                                    }
+                                }
+                            } 
+                            // + 预览图片
+                            if (isCanSend && config.previewBox) {
+                                previewImage(file, $(config.previewBox).get(0), function (img) {
+                                    // 判断图片比例
+                                    if (config.scale && config.scale.length == 2) {
+                                        if (img.width >= config.scale[0] && img.height >= config.scale[1] && img.height<=$(window).height()) {
+                                            isCanSend = true;
+                                            // 加载图片，进行预览
+                                            $(config.previewBox).html('');
+                                            $(config.previewBox).append(img);
+                                            // 执行预览图片后的回调
+                                            config.previewCallBack && config.previewCallBack(img, data);
+                                        } else {
+                                            config.scaleError && config.scaleError();
+                                            isCanSend = false;
+                                            return false;
+                                        }
+                                    } else {
+                                        // 加载图片，进行预览
+                                        $(config.previewBox).html('');
+                                        $(config.previewBox).append(img);
+                                        config.previewCallBack && config.previewCallBack(img, data);
+                                    }
+                                });
+                            }
+                        } else {
+                            file = null;
+                            isCanSend = false;
                         }
-                    }
-                    // 发送
-                    $.ajax({
-                        url: config.url,
-                        method: 'POST',
-                        data: formData, // 表单数据
-                        processData: false, // 不要对data参数进行序列化处理，默认为true
-                        contentType: false, // 不要设置Content-Type请求头，因文件数据是以 multipart/form-data 来编
-                        success: function (res, status, xhr) {
-                            isCanSend = false; // 禁止重复上传
-                            config.ajaxSuccess && config.ajaxSuccess(res);
-                        },
-                        error: function (xhr, status, error) {
-                            config.ajaxError && config.ajaxError(error);
+                    });
+
+                    // Event upload 提交
+                    $(config.btn).on('click', function () {
+                        var isCanDoAjax = true;
+                        var formData = new FormData(); // 表单数据
+                        // 额外的回调
+                        if (typeof (config.onBeforeSend) === 'function') {
+                            isCanDoAjax = config.onBeforeSend(data);
+                        }
+                        // 是否中断发送
+                        if (isCanDoAjax) {
+                            // 发送普通数据
+                            // 额外发送的数据 例如 appid
+                            if (config.data && Object.keys(config.data).length > 0) {
+                                for (key in config.data) {
+                                    formData.append(key, config.data[key]);
+                                }
+                            }
+                            // 额外发送的数据 例如裁剪
+                            if (data && Object.keys(data).length > 0) {
+                                for (key in data) {
+                                    formData.append(key, data[key]);
+                                }
+                            }
+                            // 将文件信息填入表单
+                            if (isCanSend) {
+                                formData.append('file', file);
+                            } else {
+                                if (typeof config.sendNull === 'function') {
+                                    return config.sendNull(); // 是否中断ajax发送
+                                }
+                            }
+                            // 发送
+                            $.ajax({
+                                url: config.url,
+                                method: 'POST',
+                                data: formData, // 表单数据
+                                processData: false, // 不要对data参数进行序列化处理，默认为true
+                                contentType: false, // 不要设置Content-Type请求头，因文件数据是以 multipart/form-data 来编
+                                success: function (res, status, xhr) {
+                                    isCanSend = false; // 禁止重复上传
+                                    config.ajaxSuccess && config.ajaxSuccess(res);
+                                },
+                                error: function (xhr, status, error) {
+                                    config.ajaxError && config.ajaxError(error);
+                                }
+                            });
                         }
                     });
                 }
-            });
-            return $ele;
+            } catch (err) {
+                console.error(new Error("有错误！！！ "+err));
+            } 
+
+            return this;
         }
     });
 }(jQuery, window));
