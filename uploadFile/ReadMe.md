@@ -3,7 +3,6 @@
 
 
 ### 特点
-1. 主要针对上传图片
 1. 无flash依赖
 1. 兼容IE10+
 1. 带图片预览功能
@@ -70,9 +69,9 @@
 			<td>否</td>
     	</tr>
     	<tr>
-    		<td>onBeforeChange</td>
+    		<td>onFileChange</td>
     		<td>Function</td>
-			<td>选择图片的change事件</td>
+			<td>选择图片的change事件,暴露出文件信息</td>
 			<td>否</td>
     	</tr>
     	<tr>
@@ -90,7 +89,7 @@
     	<tr>
     		<td>sizeError</td>
     		<td>Function</td>
-			<td>文件大小不符的回调函数</td>
+			<td>文件大小不符的回调函数,0 代表文件为空，1 代表文件超限</td>
 			<td>否</td>
     	</tr>
     	<tr>
