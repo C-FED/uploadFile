@@ -32,7 +32,7 @@
         'bmp':'image/bmp',
         'webp':'image/webp',
         'ico':'image/x-icon',
-        'img*':'image/*' // bug
+        'img*':'image/*'
     };
     // =======================图片预览  IE10+ ==================================
     function previewImage(input_file, picBox, callback) {
