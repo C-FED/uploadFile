@@ -24,13 +24,13 @@
     		<td>url</td>
     		<td>String</td>
 			<td>上传文件的url地址</td>
-			<td>是</td>
+			<td>否</td>
     	</tr>
     	<tr>
     		<td>btn</td>
     		<td>String</td>
 			<td>选择器 上传按钮</td>
-			<td>是</td>
+			<td>否</td>
     	</tr>
     	<tr>
     		<td>accept</td>
