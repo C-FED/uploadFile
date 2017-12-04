@@ -2,8 +2,8 @@
 * @ignore  =====================================================================================
 * @overview 该文档主要完成主要任务是 文件上传
 * @author  Yangfan2016
-* @version 1.0.3
-* @ctime  created in 2017-09-14
+* @version 1.0.4
+* @ctime  created in 2017-09-15
 * @depend  Library jQuery
 * @compatibility  IE10+
 * @ignore  =====================================================================================
@@ -91,7 +91,7 @@
             return arr[0] * s[arr[1]];
         }
     }
-    // 扩展
+    // prop func
     $.fn.extend({
         uploadFile: function (config) {
             var $ele = this, // jQuery
@@ -100,108 +100,105 @@
                 data = {}, // 额外数据
                 isCanSend = false; // 默认禁止上传
 
-            // 验证必选参数
             try {
-                if (typeof config.url!=="string" || typeof config.btn!=="string") {
-                    throw "url或btn参数错误";
-                } else {
-                    // Init 初始化 accept='image/jpg,image/gif'
-                    if (config.accept && config.accept.length > 0) {
-                        ele.accept = (config.accept).map(function (item, index) {
-                            return MIMETYPE[item] || '';
-                        }).join(',');
+                // Init 初始化 accept='image/jpg,image/gif'
+                if (config.accept && config.accept.length > 0) {
+                    ele.accept = (config.accept).map(function (item, index) {
+                        return MIMETYPE[item] || '';
+                    }).join(',');
+                }
+
+                // Event change 选择文件
+                $ele.on('change', function (e) {
+                    var ev = e || window.event,
+                        target = ev.target || ev.srcElement;
+                    file = target.files[0];
+
+                    // onFileChange 暴露出文件信息
+                    if (typeof (config.onFileChange) === 'function') {
+                        config.onFileChange(file);
                     }
+                    // 判断是否选择文件
+                    if (file) {
+                        isCanSend=true;
+                        // 1. 判断文件类型 后缀
+                        if (!!config.accept) {
+                            // jpg,jpeg=>jpg  img*=>image
+                            config.accept=config.accept.map(function (item,index,array) {
+                                if (item==="img*") {
+                                    item="image";
+                                }
+                                return item=="jpeg"?"jpg":item;
+                            });
 
-                    // Event change 选择文件
-                    $ele.on('change', function (e) {
-                        var ev = e || window.event,
-                            target = ev.target || ev.srcElement;
-                        file = target.files[0];
-
-                        // onFileChange 暴露出文件信息
-                        if (typeof (config.onFileChange) === 'function') {
-                            config.onFileChange(file);
+                            var reg = new RegExp('\\.(' + config.accept.join('|') + ')$', 'g'); // Reg /\.(jpg|gif|png)$/g
+                            // 判断文件后缀
+                            if (!reg.test(file.name)) {
+                                isCanSend = false;
+                                // 判断是否是图片文件 image/*
+                                if (file.type.indexOf("image")!==-1) {
+                                    if (config.accept.indexOf("image")!==-1) {
+                                        isCanSend=true;
+                                    }
+                                }
+                                if (!isCanSend) {
+                                    config.acceptError && config.acceptError();
+                                    return false;
+                                }
+                            } else {
+                                isCanSend = true;
+                            }
+                                
                         }
-                        // 判断是否选择文件
-                        if (file) {
-                            isCanSend=true;
-                            // 1. 判断文件类型 后缀
-                            if (!!config.accept) {
-                                // jpg,jpeg=>jpg  img*=>image
-                                config.accept=config.accept.map(function (item,index,array) {
-                                    if (item==="img*") {
-                                        item="image";
-                                    }
-                                    return item=="jpeg"?"jpg":item;
-                                });
-
-                                var reg = new RegExp('\\.(' + config.accept.join('|') + ')$', 'g'); // Reg /\.(jpg|gif|png)$/g
-                                // 判断文件后缀
-                                if (!reg.test(file.name)) {
+                        // 2. 判断文件大小
+                        if (file.size==0) {
+                            config.sizeError && config.sizeError(0);
+                            isCanSend = false;
+                            return false;
+                        } else {
+                            if (!!config.maxSize) {
+                                if (file.size > formatByte(config.maxSize)) {
+                                    config.sizeError && config.sizeError(1);
                                     isCanSend = false;
-                                    // 判断是否是图片文件 image/*
-                                    if (file.type.indexOf("image")!==-1) {
-                                        if (config.accept.indexOf("image")!==-1) {
-                                            isCanSend=true;
-                                        }
-                                    }
-                                    if (!isCanSend) {
-                                        config.acceptError && config.acceptError();
-                                        return false;
-                                    }
+                                    return false;
                                 } else {
                                     isCanSend = true;
                                 }
-                                    
                             }
-                            // 2. 判断文件大小
-                            if (file.size==0) {
-                                config.sizeError && config.sizeError(0);
-                                isCanSend = false;
-                                return false;
-                            } else {
-                                if (!!config.maxSize) {
-                                    if (file.size > formatByte(config.maxSize)) {
-                                        config.sizeError && config.sizeError(1);
-                                        isCanSend = false;
-                                        return false;
-                                    } else {
+                        } 
+                        // + 预览图片
+                        if (isCanSend && config.previewBox) {
+                            previewImage(file, $(config.previewBox).get(0), function (img) {
+                                // 判断图片比例
+                                if (config.scale && config.scale.length == 2) {
+                                    if (img.width >= config.scale[0] && img.height >= config.scale[1] && img.height<=$(window).height()) {
                                         isCanSend = true;
-                                    }
-                                }
-                            } 
-                            // + 预览图片
-                            if (isCanSend && config.previewBox) {
-                                previewImage(file, $(config.previewBox).get(0), function (img) {
-                                    // 判断图片比例
-                                    if (config.scale && config.scale.length == 2) {
-                                        if (img.width >= config.scale[0] && img.height >= config.scale[1] && img.height<=$(window).height()) {
-                                            isCanSend = true;
-                                            // 加载图片，进行预览
-                                            $(config.previewBox).html('');
-                                            $(config.previewBox).append(img);
-                                            // 执行预览图片后的回调
-                                            config.previewCallBack && config.previewCallBack(img, data);
-                                        } else {
-                                            config.scaleError && config.scaleError();
-                                            isCanSend = false;
-                                            return false;
-                                        }
-                                    } else {
                                         // 加载图片，进行预览
                                         $(config.previewBox).html('');
                                         $(config.previewBox).append(img);
+                                        // 执行预览图片后的回调
                                         config.previewCallBack && config.previewCallBack(img, data);
+                                    } else {
+                                        config.scaleError && config.scaleError();
+                                        isCanSend = false;
+                                        return false;
                                     }
-                                });
-                            }
-                        } else {
-                            file = null;
-                            isCanSend = false;
+                                } else {
+                                    // 加载图片，进行预览
+                                    $(config.previewBox).html('');
+                                    $(config.previewBox).append(img);
+                                    config.previewCallBack && config.previewCallBack(img, data);
+                                }
+                            });
                         }
-                    });
+                    } else {
+                        file = null;
+                        isCanSend = false;
+                    }
+                });
 
-                    // Event upload 提交
+                // Event upload 提交
+                if (config.btn && config.url) {
                     $(config.btn).on('click', function () {
                         var isCanDoAjax = true;
                         var formData = new FormData(); // 表单数据
@@ -252,9 +249,10 @@
                 }
             } catch (err) {
                 console.error(new Error("有错误！！！ "+err));
-            } 
-
+            }
             return this;
         }
+
     });
+
 }(jQuery, window));
