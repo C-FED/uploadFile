@@ -128,7 +128,7 @@
                                 if (item==="img*") {
                                     item="image";
                                 }
-                                return item=="jpeg"?"jpg":item;
+                                return item;
                             });
 
                             var reg = new RegExp('\\.(' + config.accept.join('|') + ')$', 'g'); // Reg /\.(jpg|gif|png)$/g
