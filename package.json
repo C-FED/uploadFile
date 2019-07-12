@@ -1,0 +1,17 @@
+{
+  "name": "uploadfile",
+  "version": "1.0.0",
+  "main": "./dist/jquery.uploadFile.min.js",
+  "scripts": {
+    "build": "rollup --config rollup.config.js"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.5.4",
+    "@babel/preset-env": "^7.5.4",
+    "rollup": "^1.16.7",
+    "rollup-plugin-babel": "^4.3.3",
+    "rollup-plugin-extensions": "^0.1.0",
+    "rollup-plugin-json": "^4.0.0",
+    "rollup-plugin-terser": "^5.1.1"
+  }
+}

@@ -5,7 +5,6 @@
 ### Angular ###
 ## Angular ##
 # compiled output
-/dist
 /tmp
 /app/**/*.js
 /app/**/*.js.map
@@ -41,7 +40,6 @@ n
 ### Angular ###
 ## Angular ##
 # compiled output
-/dist
 /tmp
 /app/**/*.js
 /app/**/*.js.map
@@ -68,3 +66,6 @@ testem.log
 
 #System Files
 .DS_Store
+
+# error log
+*.log
